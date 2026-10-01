@@ -1,0 +1,1162 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IGNORE GALACTICOS — MLBB Squad</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@700&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   TOKENS
+   ============================================================ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --ink:#111111;
+  --paper:#F3EDE2;
+  --white:#FFFCF5;
+  --yellow:#FFD93D;
+  --pink:#FF5C8A;
+  --cyan:#5BC8F5;
+  --lime:#B4E33D;
+  --purple:#A78BFA;
+  --orange:#FF8A3D;
+
+  --bd:3px solid var(--ink);
+  --sh:7px 7px 0 var(--ink);
+  --sh-sm:4px 4px 0 var(--ink);
+  --sh-lg:11px 11px 0 var(--ink);
+}
+
+html{
+  scroll-behavior:smooth;
+  scroll-padding-top:24px;
+  -webkit-text-size-adjust:100%;
+}
+
+body{
+  font-family:'Space Grotesk',system-ui,-apple-system,sans-serif;
+  color:var(--ink);
+  line-height:1.55;
+  overflow-x:hidden;
+  background-color:var(--paper);
+  background-image:
+    linear-gradient(rgba(17,17,17,.055) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(17,17,17,.055) 1px,transparent 1px);
+  background-size:44px 44px;
+}
+
+::selection{background:var(--yellow);color:var(--ink)}
+img{display:block;max-width:100%}
+
+/* ============================================================
+   MENU BUTTON
+   ============================================================ */
+.menu-btn{
+  position:fixed;
+  top:18px;left:18px;
+  z-index:320;
+  width:54px;height:54px;
+  display:grid;place-items:center;
+  background:var(--yellow);
+  border:var(--bd);
+  box-shadow:var(--sh-sm);
+  cursor:pointer;
+  touch-action:manipulation;
+  -webkit-tap-highlight-color:transparent;
+  transition:transform .1s ease, box-shadow .1s ease, background .1s ease;
+}
+
+.menu-btn.intro-anim{
+  animation:navIn .55s cubic-bezier(.2,.85,.3,1) 1.5s both;
+}
+@keyframes navIn{from{transform:translate(-120%,-120%)}to{transform:translate(0,0)}}
+
+.menu-btn.hidden{display:none;}
+
+.menu-btn:hover{
+  transform:translate(-2px,-2px);
+  box-shadow:6px 6px 0 var(--ink);
+}
+.menu-btn:active{transform:translate(1px,1px);box-shadow:2px 2px 0 var(--ink)}
+.menu-btn:focus-visible{outline:3px solid var(--pink);outline-offset:3px}
+
+.menu-btn .dots{
+  display:flex;flex-direction:column;gap:4px;
+  align-items:center;justify-content:center;
+}
+.menu-btn .dots span{
+  width:6px;height:6px;
+  background:var(--ink);
+  border-radius:50%;
+}
+
+/* ============================================================
+   MENU TAG
+   ============================================================ */
+.menu-tag{
+  position:fixed;
+  top:30px;left:84px;
+  z-index:319;
+  font-family:'JetBrains Mono',monospace;font-weight:700;
+  font-size:10px;letter-spacing:.2em;text-transform:uppercase;
+  background:var(--ink);color:var(--paper);
+  padding:6px 11px;
+  border:2px solid var(--ink);
+  pointer-events:none;
+  animation:navIn .55s cubic-bezier(.2,.85,.3,1) 1.6s both;
+}
+.menu-tag.intro-anim{animation:navIn .55s cubic-bezier(.2,.85,.3,1) 1.6s both;}
+.menu-tag.hidden{display:none;}
+
+/* ============================================================
+   SQUAD LOGO (pojok kanan atas)
+   ============================================================ */
+.squad-logo{
+  position:fixed;
+  top:18px;
+  right:18px;
+  z-index:319;
+  width:76px;               /* ukuran logo — ubah sesuai selera */
+  height:76px;              /* harus sama dengan width (1:1) */
+  aspect-ratio:1 / 1;
+  display:grid;
+  place-items:center;
+  background:var(--paper);
+  border:var(--bd);
+  box-shadow:var(--sh-sm);
+  overflow:hidden;
+  padding:5px;
+  pointer-events:none;
+  animation:navIn .55s cubic-bezier(.2,.85,.3,1) 1.6s both;
+}
+.squad-logo.intro-anim{
+  animation:navIn .55s cubic-bezier(.2,.85,.3,1) 1.6s both;
+}
+.squad-logo.hidden{display:none;}
+
+.squad-logo img{
+  width:100%;
+  height:100%;
+  object-fit:contain;       /* ganti ke "cover" kalau ingin penuh memenuhi kotak */
+  display:block;
+}
+
+.squad-logo .logo-fallback{
+  display:none;
+  font-family:'Archivo Black',sans-serif;
+  font-size:1.5rem;
+  letter-spacing:-.02em;
+  color:var(--ink);
+  line-height:1;
+}
+.squad-logo.no-img img{display:none;}
+.squad-logo.no-img .logo-fallback{display:block;}
+
+/* ============================================================
+   SIDE DRAWER
+   ============================================================ */
+.drawer-backdrop{
+  position:fixed;inset:0;
+  background:rgba(17,17,17,.5);
+  backdrop-filter:blur(2px);
+  -webkit-backdrop-filter:blur(2px);
+  z-index:300;
+  opacity:0;pointer-events:none;
+  transition:opacity .22s ease;
+}
+.drawer-backdrop.show{opacity:1;pointer-events:auto}
+
+.drawer{
+  position:fixed;
+  top:0;left:0;bottom:0;
+  width:min(340px, 84vw);
+  z-index:310;
+  background:var(--white);
+  border-right:var(--bd);
+  box-shadow:10px 0 0 rgba(17,17,17,.18);
+  display:flex;flex-direction:column;
+  transform:translateX(-104%);
+  transition:transform .3s cubic-bezier(.32,.72,.36,1);
+  overflow-y:auto;
+  will-change:transform;
+}
+.drawer.open{transform:translateX(0)}
+
+.drawer-head{
+  padding:20px 20px 18px;
+  background:var(--yellow);
+  border-bottom:var(--bd);
+  position:sticky;top:0;z-index:2;
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:14px;
+}
+.drawer-brand{
+  font-family:'Archivo Black',sans-serif;
+  font-size:1.35rem;
+  line-height:1;
+  letter-spacing:-.01em;
+  display:flex;flex-direction:column;gap:2px;
+  min-width:0;
+}
+.drawer-brand small{
+  font-family:'JetBrains Mono',monospace;
+  font-weight:700;
+  font-size:9.5px;
+  letter-spacing:.22em;
+  text-transform:uppercase;
+  color:rgba(17,17,17,.7);
+  margin-top:8px;
+}
+
+.drawer-close{
+  flex-shrink:0;
+  width:42px;height:42px;
+  display:grid;place-items:center;
+  background:var(--ink);
+  color:var(--yellow);
+  border:var(--bd);
+  box-shadow:4px 4px 0 var(--ink);
+  cursor:pointer;
+  font-family:'Archivo Black',sans-serif;
+  font-size:1.1rem;
+  line-height:1;
+  touch-action:manipulation;
+  -webkit-tap-highlight-color:transparent;
+  transition:transform .1s ease, box-shadow .1s ease, background .1s ease;
+}
+.drawer-close:hover{
+  transform:translate(-2px,-2px);
+  box-shadow:6px 6px 0 var(--ink);
+  background:var(--pink);
+  color:var(--ink);
+}
+.drawer-close:active{transform:translate(1px,1px);box-shadow:2px 2px 0 var(--ink)}
+.drawer-close:focus-visible{outline:3px solid var(--pink);outline-offset:3px}
+
+.drawer-list{
+  list-style:none;
+  padding:16px;
+  display:flex;flex-direction:column;gap:9px;
+  flex:1;
+}
+
+.drawer-list a{
+  display:flex;align-items:center;gap:14px;
+  text-decoration:none;
+  color:var(--ink);
+  padding:13px 14px;
+  border:var(--bd);
+  background:var(--paper);
+  box-shadow:4px 4px 0 var(--ink);
+  touch-action:manipulation;
+  -webkit-tap-highlight-color:transparent;
+  transition:transform .12s ease, box-shadow .12s ease, background .12s ease;
+}
+.drawer-list a:hover,
+.drawer-list a:focus-visible{
+  transform:translate(-2px,-2px);
+  box-shadow:6px 6px 0 var(--ink);
+  background:var(--yellow);
+  outline:none;
+}
+.drawer-list a:active{transform:translate(1px,1px);box-shadow:2px 2px 0 var(--ink)}
+
+.dl-num{
+  font-family:'JetBrains Mono',monospace;font-weight:700;
+  font-size:10.5px;letter-spacing:.1em;
+  background:var(--ink);color:var(--paper);
+  padding:4px 7px;
+  flex-shrink:0;
+}
+.dl-text{
+  font-family:'Archivo Black',sans-serif;
+  font-size:.95rem;
+  letter-spacing:.01em;
+  text-transform:uppercase;
+  line-height:1.1;
+}
+.dl-text small{
+  display:block;
+  font-family:'Space Grotesk',sans-serif;
+  font-weight:500;
+  font-size:.72rem;
+  text-transform:none;
+  letter-spacing:0;
+  color:rgba(17,17,17,.62);
+  margin-top:3px;
+}
+
+.drawer-foot{
+  padding:14px 18px 20px;
+  border-top:var(--bd);
+  background:var(--paper);
+}
+.drawer-foot p{
+  font-family:'JetBrains Mono',monospace;font-weight:700;
+  font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;
+  color:rgba(17,17,17,.6);
+  text-align:center;
+}
+.drawer-foot p b{color:var(--ink)}
+
+body.locked{overflow:hidden}
+
+/* ============================================================
+   INTRO / SWORD
+   ============================================================ */
+.intro{
+  position:relative;
+  min-height:100vh;
+  display:flex;flex-direction:column;align-items:center;
+  padding:calc(50vh + 36px) 20px 90px;
+  overflow:hidden;
+}
+.intro::before{
+  content:'';position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(ellipse 55% 42% at 50% 44%,rgba(255,217,61,.55),transparent 72%);
+}
+.sword{
+  position:absolute;top:0;left:50%;
+  width:96px;height:auto;z-index:5;
+  transform:translate(-50%,-100%) translateY(-12vh);
+  filter:drop-shadow(7px 7px 0 rgba(17,17,17,.13));
+  animation:stab 1.6s cubic-bezier(.32,.72,.36,1) .35s forwards;
+}
+@keyframes stab{
+  0%   {transform:translate(-50%,-100%) translateY(-12vh)}
+  55%  {transform:translate(-50%,-100%) translateY(50vh)}
+  68%  {transform:translate(-50%,-100%) translateY(47.4vh)}
+  82%  {transform:translate(-50%,-100%) translateY(51.2vh)}
+  100% {transform:translate(-50%,-100%) translateY(50vh)}
+}
+.impact{
+  position:absolute;top:50vh;left:50%;z-index:4;
+  width:24px;height:24px;border-radius:50%;
+  transform:translate(-50%,-50%) scale(0);
+  background:radial-gradient(circle,#fff 0%,var(--yellow) 42%,rgba(255,217,61,0) 72%);
+  pointer-events:none;
+  animation:impact .75s ease-out 1.12s forwards;
+}
+@keyframes impact{
+  0%{transform:translate(-50%,-50%) scale(0);opacity:1}
+  45%{transform:translate(-50%,-50%) scale(9);opacity:.85}
+  100%{transform:translate(-50%,-50%) scale(17);opacity:0}
+}
+.intro-content{
+  position:relative;z-index:6;text-align:center;
+  opacity:0;animation:fadeUp .85s cubic-bezier(.2,.8,.3,1) 1.7s forwards;
+}
+@keyframes fadeUp{
+  from{opacity:0;transform:translateY(26px)}
+  to{opacity:1;transform:translateY(0)}
+}
+.squad-title{display:flex;flex-direction:column;align-items:center;gap:6px;line-height:.92}
+.t-sm{
+  font-family:'Archivo Black',sans-serif;
+  font-size:clamp(1.35rem,4.6vw,2.6rem);
+  letter-spacing:.36em;padding-left:.36em;color:var(--ink);
+}
+.t-lg{
+  font-family:'Archivo Black',sans-serif;
+  font-size:clamp(2rem,7.6vw,5.2rem);
+  letter-spacing:-.015em;background:var(--yellow);
+  border:4px solid var(--ink);
+  box-shadow:8px 8px 0 var(--ink);
+  padding:6px 20px 12px;line-height:1;
+}
+.squad-sub{
+  margin-top:26px;
+  font-family:'JetBrains Mono',monospace;font-weight:700;
+  font-size:clamp(.62rem,2.2vw,.8rem);
+  letter-spacing:.22em;text-transform:uppercase;
+  color:rgba(17,17,17,.7);
+}
+.scroll-hint{
+  position:absolute;bottom:26px;left:50%;
+  transform:translateX(-50%);z-index:6;
+  font-family:'JetBrains Mono',monospace;font-weight:700;
+  font-size:10px;letter-spacing:.22em;
+  padding:7px 14px;background:var(--ink);color:var(--paper);
+  border:2px solid var(--ink);opacity:0;
+  animation:fadeUp .8s ease 2.3s forwards, bob 2s ease-in-out 3s infinite;
+}
+@keyframes bob{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(6px)}}
+
+/* ============================================================
+   MARQUEE
+   ============================================================ */
+.marquee{
+  background:var(--ink);color:var(--yellow);
+  border-top:var(--bd);border-bottom:var(--bd);
+  overflow:hidden;padding:13px 0;
+}
+.marquee-track{display:flex;width:max-content;animation:scrollX 26s linear infinite;}
+.marquee-track span{
+  font-family:'Archivo Black',sans-serif;
+  font-size:clamp(.8rem,2vw,1.05rem);
+  letter-spacing:.09em;white-space:nowrap;padding-right:48px;
+}
+@keyframes scrollX{to{transform:translateX(-50%)}}
+
+/* ============================================================
+   SECTIONS
+   ============================================================ */
+.sec{max-width:1180px;margin:0 auto;padding:88px 20px;}
+.eyebrow{
+  display:inline-flex;align-items:center;gap:9px;
+  font-family:'JetBrains Mono',monospace;font-weight:700;
+  font-size:11px;letter-spacing:.16em;text-transform:uppercase;
+  background:var(--ink);color:var(--paper);
+  padding:6px 13px;border:var(--bd);box-shadow:var(--sh-sm);
+  margin-bottom:20px;
+}
+.eyebrow i{width:7px;height:7px;background:var(--yellow);border-radius:50%;display:block;flex-shrink:0;}
+.sec-head{margin-bottom:44px;max-width:800px}
+.sec-head h2{
+  font-family:'Archivo Black',sans-serif;
+  font-size:clamp(1.85rem,5.6vw,3.4rem);
+  line-height:.98;letter-spacing:-.02em;text-transform:uppercase;
+}
+.sec-head h2 mark{
+  background:var(--yellow);color:var(--ink);
+  padding:0 10px 4px;border:var(--bd);box-shadow:var(--sh-sm);
+  display:inline-block;margin-top:6px;
+}
+.sec-head p{
+  margin-top:20px;font-size:clamp(.94rem,2.1vw,1.06rem);
+  color:rgba(17,17,17,.78);max-width:62ch;
+}
+
+/* ============================================================
+   SQUAD INTRO
+   ============================================================ */
+.squad-grid{display:grid;grid-template-columns:1.55fr 1fr;gap:26px;align-items:start;}
+.manifesto{
+  border:var(--bd);background:var(--white);
+  box-shadow:var(--sh-lg);padding:34px 32px;
+}
+.manifesto p{font-size:clamp(.95rem,2.1vw,1.1rem);margin-bottom:16px;}
+.manifesto p:last-child{margin-bottom:0}
+.manifesto strong{
+  background:var(--yellow);padding:1px 6px;border:2px solid var(--ink);
+  display:inline-block;line-height:1.3;
+}
+.stat-stack{display:grid;gap:18px}
+.stat{
+  border:var(--bd);box-shadow:var(--sh);
+  padding:20px 22px;background:var(--white);
+  transition:transform .16s,box-shadow .16s;
+}
+.stat:hover{transform:translate(-3px,-3px);box-shadow:var(--sh-lg)}
+.stat b{
+  display:block;font-family:'Archivo Black',sans-serif;
+  font-size:clamp(2rem,6vw,2.9rem);line-height:1;letter-spacing:-.02em;
+}
+.stat span{
+  display:block;margin-top:6px;
+  font-family:'JetBrains Mono',monospace;font-weight:700;
+  font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;
+  color:rgba(17,17,17,.62);
+}
+.stat:nth-child(1){background:var(--yellow)}
+.stat:nth-child(2){background:var(--cyan)}
+.stat:nth-child(3){background:var(--pink)}
+
+/* ============================================================
+   PLAYERS
+   ============================================================ */
+.players-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(196px,1fr));gap:20px;}
+.player-card{
+  position:relative;border:var(--bd);box-shadow:var(--sh);
+  padding:26px 20px 22px;background:var(--white);
+  overflow:hidden;transition:transform .16s,box-shadow .16s;
+}
+.player-card::after{
+  content:'';position:absolute;inset:0;
+  background-image:repeating-linear-gradient(45deg,rgba(17,17,17,.05) 0 6px,transparent 6px 12px);
+  opacity:0;transition:opacity .2s;pointer-events:none;
+}
+.player-card:hover{transform:translate(-4px,-4px);box-shadow:var(--sh-lg)}
+.player-card:hover::after{opacity:1}
+.pc-num{
+  display:inline-block;font-family:'JetBrains Mono',monospace;font-weight:700;
+  font-size:11px;letter-spacing:.14em;
+  background:var(--ink);color:var(--paper);
+  padding:3px 8px;margin-bottom:18px;
+}
+.pc-ign{
+  font-family:'Archivo Black',sans-serif;
+  font-size:clamp(1.35rem,3.6vw,1.75rem);
+  line-height:1;letter-spacing:-.01em;word-break:break-word;
+}
+.pc-name{margin-top:8px;font-size:.9rem;color:rgba(17,17,17,.7);}
+.pc-role{
+  display:inline-block;margin-top:16px;
+  font-family:'JetBrains Mono',monospace;font-weight:700;
+  font-size:10px;letter-spacing:.14em;text-transform:uppercase;
+  border:2px solid var(--ink);padding:4px 9px;background:var(--paper);
+}
+
+/* ============================================================
+   ROLES
+   ============================================================ */
+.roles-grid{display:grid;gap:22px}
+.role-card{
+  display:grid;grid-template-columns:250px 1fr;
+  border:var(--bd);background:var(--white);
+  box-shadow:var(--sh);overflow:hidden;
+  transition:transform .16s,box-shadow .16s;
+}
+.role-card:hover{transform:translate(-4px,-4px);box-shadow:var(--sh-lg)}
+.rc-left{
+  border-right:var(--bd);padding:26px 22px;
+  display:flex;flex-direction:column;justify-content:space-between;gap:22px;
+}
+.rc-role{
+  font-family:'Archivo Black',sans-serif;
+  font-size:clamp(1.25rem,3.2vw,1.6rem);
+  line-height:1.02;text-transform:uppercase;letter-spacing:-.01em;
+}
+.rc-owner{
+  font-family:'JetBrains Mono',monospace;font-weight:700;
+  font-size:11px;letter-spacing:.12em;color:rgba(17,17,17,.68);
+}
+.rc-owner b{color:var(--ink)}
+.rc-right{padding:26px 26px 26px 24px}
+.rc-desc{font-size:clamp(.92rem,2vw,1rem);margin-bottom:20px;}
+.rc-interest{border-top:2px dashed rgba(17,17,17,.28);padding-top:16px;}
+.rc-label{
+  display:inline-block;font-family:'JetBrains Mono',monospace;font-weight:700;
+  font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;
+  background:var(--ink);color:var(--paper);
+  padding:3px 8px;margin-bottom:9px;
+}
+.rc-interest p{font-size:.92rem;color:rgba(17,17,17,.8)}
+
+/* ============================================================
+   HEROES
+   ============================================================ */
+.heroes-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:26px;}
+.hero-block{
+  border:var(--bd);background:var(--white);box-shadow:var(--sh);
+  overflow:hidden;transition:transform .16s,box-shadow .16s;
+}
+.hero-block:hover{transform:translate(-4px,-4px);box-shadow:var(--sh-lg)}
+.hb-head{
+  display:flex;align-items:center;gap:14px;
+  padding:16px 18px;border-bottom:var(--bd);
+}
+.hb-no{
+  font-family:'Archivo Black',sans-serif;font-size:14px;
+  background:var(--ink);color:var(--paper);
+  border:2px solid var(--ink);padding:5px 9px;flex-shrink:0;
+}
+.hb-head h3{font-family:'Archivo Black',sans-serif;font-size:1.2rem;line-height:1;letter-spacing:-.01em;}
+.hb-head p{
+  font-family:'JetBrains Mono',monospace;font-weight:700;
+  font-size:10px;letter-spacing:.14em;text-transform:uppercase;
+  color:rgba(17,17,17,.66);margin-top:5px;
+}
+.hb-list{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:16px;}
+.hero-card{
+  border:var(--bd);background:var(--paper);
+  box-shadow:3px 3px 0 var(--ink);overflow:hidden;
+  transition:transform .14s,box-shadow .14s;
+}
+.hero-card:hover{transform:translate(-2px,-2px);box-shadow:5px 5px 0 var(--ink)}
+.hero-img{
+  position:relative;aspect-ratio:1/1;display:grid;place-items:center;
+  overflow:hidden;border-bottom:var(--bd);
+  background-image:repeating-linear-gradient(45deg,#EDE5D8 0 7px,#E3D9C8 7px 14px);
+}
+.hero-initial{
+  font-family:'Archivo Black',sans-serif;font-size:1.55rem;
+  color:rgba(17,17,17,.3);letter-spacing:-.02em;
+}
+.hero-img img{
+  position:absolute;inset:0;width:100%;height:100%;
+  object-fit:contain;padding:5px;
+}
+.hero-meta{padding:10px 10px 12px}
+.hero-meta strong{
+  display:block;font-family:'Archivo Black',sans-serif;
+  font-size:.82rem;line-height:1.15;letter-spacing:-.01em;
+}
+.hero-meta span{
+  display:block;margin-top:4px;font-size:.68rem;
+  color:rgba(17,17,17,.66);line-height:1.3;
+}
+
+/* ============================================================
+   THANKS
+   ============================================================ */
+.thanks-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(266px,1fr));gap:22px;}
+.thanks-card{
+  border:var(--bd);background:var(--white);box-shadow:var(--sh);
+  padding:28px 24px 30px;transition:transform .16s,box-shadow .16s;
+}
+.thanks-card:hover{transform:translate(-4px,-4px);box-shadow:var(--sh-lg)}
+.tc-num{
+  display:inline-block;font-family:'JetBrains Mono',monospace;font-weight:700;
+  font-size:11px;letter-spacing:.14em;
+  background:var(--ink);color:var(--paper);
+  padding:3px 9px;margin-bottom:20px;
+}
+.thanks-card h3{
+  font-family:'Archivo Black',sans-serif;
+  font-size:clamp(1.2rem,3vw,1.5rem);
+  line-height:1.05;text-transform:uppercase;margin-bottom:14px;
+}
+.thanks-card p{font-size:.94rem;color:rgba(17,17,17,.8)}
+.thanks-card:nth-child(1){background:var(--lime)}
+.thanks-card:nth-child(2){background:var(--orange)}
+.thanks-card:nth-child(3){background:var(--purple)}
+
+/* ============================================================
+   QUOTE
+   ============================================================ */
+.quote-sec{
+  background:var(--ink);border-top:var(--bd);
+  padding:96px 20px 88px;position:relative;overflow:hidden;
+}
+.quote-sec::before{
+  content:'';position:absolute;inset:0;
+  background-image:
+    linear-gradient(rgba(255,255,255,.045) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.045) 1px,transparent 1px);
+  background-size:44px 44px;pointer-events:none;
+}
+.quote-inner{position:relative;z-index:1;max-width:940px;margin:0 auto;text-align:center;}
+.quote-mark{
+  font-family:'Archivo Black',sans-serif;
+  font-size:clamp(3.4rem,11vw,7rem);
+  color:var(--yellow);line-height:.6;margin-bottom:26px;
+}
+.quote-inner blockquote{
+  font-family:'Archivo Black',sans-serif;
+  font-size:clamp(1.4rem,5vw,3rem);
+  line-height:1.08;letter-spacing:-.02em;
+  text-transform:uppercase;color:var(--paper);
+}
+.quote-inner blockquote em{font-style:normal;color:var(--yellow);}
+.quote-by{
+  margin-top:36px;display:inline-block;
+  font-family:'JetBrains Mono',monospace;font-weight:700;
+  font-size:11px;letter-spacing:.2em;text-transform:uppercase;
+  background:var(--yellow);color:var(--ink);
+  border:var(--bd);box-shadow:5px 5px 0 rgba(243,237,226,.85);
+  padding:9px 16px;
+}
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+.footer{
+  border-top:var(--bd);background:var(--ink);color:var(--paper);
+  padding:24px 20px;display:flex;flex-wrap:wrap;gap:12px;
+  align-items:center;justify-content:space-between;
+}
+.footer p{
+  font-family:'JetBrains Mono',monospace;font-weight:700;
+  font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;
+  color:rgba(243,237,226,.68);
+}
+.footer p b{color:var(--yellow)}
+
+/* ============================================================
+   REVEAL
+   ============================================================ */
+.reveal{
+  opacity:0;transform:translateY(26px);
+  transition:opacity .62s cubic-bezier(.2,.8,.3,1),transform .62s cubic-bezier(.2,.8,.3,1);
+}
+.reveal.in{opacity:1;transform:none}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width:900px){
+  .squad-grid{grid-template-columns:1fr}
+  .role-card{grid-template-columns:1fr}
+  .rc-left{
+    border-right:none;border-bottom:var(--bd);
+    flex-direction:row;align-items:center;justify-content:space-between;
+    gap:14px;padding:20px;
+  }
+  .rc-right{padding:20px}
+}
+
+@media (max-width:640px){
+  .sec{padding:66px 16px}
+  .intro{padding-top:calc(50vh + 28px)}
+  .sword{width:72px}
+  .t-lg{padding:5px 14px 10px;box-shadow:6px 6px 0 var(--ink)}
+
+  .menu-btn{width:48px;height:48px;top:14px;left:14px}
+  .menu-btn .dots span{width:5px;height:5px}
+  .menu-tag{top:24px;left:74px;font-size:9px;padding:5px 9px}
+
+  /* logo menyesuaikan di HP */
+  .squad-logo{
+    width:58px;height:58px;
+    top:14px;right:14px;
+    padding:4px;
+  }
+  .squad-logo .logo-fallback{font-size:1.15rem}
+
+  .manifesto{padding:24px 20px}
+  .players-grid{grid-template-columns:repeat(auto-fit,minmax(148px,1fr));gap:14px}
+  .player-card{padding:20px 15px 18px}
+  .hb-list{grid-template-columns:repeat(3,1fr);gap:9px;padding:12px}
+  .hero-meta strong{font-size:.72rem}
+  .hero-meta span{font-size:.6rem}
+  .heroes-grid{grid-template-columns:1fr;gap:20px}
+  .quote-sec{padding:72px 16px 66px}
+}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{
+    animation-duration:.001ms !important;
+    animation-iteration-count:1 !important;
+    transition-duration:.001ms !important;
+    scroll-behavior:auto !important;
+  }
+  .intro-content,.scroll-hint{opacity:1 !important}
+  .sword{transform:translate(-50%,-100%) translateY(50vh) !important}
+  .reveal{opacity:1;transform:none}
+}
+</style>
+</head>
+<body>
+
+<!-- ================= MENU BUTTON ================= -->
+<button class="menu-btn intro-anim" id="menuBtn" aria-label="Buka menu navigasi" aria-controls="drawer" aria-expanded="false">
+  <span class="dots" aria-hidden="true">
+    <span></span><span></span><span></span>
+  </span>
+</button>
+<span class="menu-tag intro-anim" id="menuTag">Menu</span>
+
+<!-- ================= SQUAD LOGO (pojok kanan atas) ================= -->
+<div class="squad-logo intro-anim no-img" id="squadLogo" aria-label="Logo Ignore Galacticos">
+  <img id="squadLogoImg" src="" alt="Logo IGNORE GALACTICOS">
+  <span class="logo-fallback">IG</span>
+</div>
+
+<!-- ================= DRAWER SAMPING ================= -->
+<div class="drawer-backdrop" id="drawerBackdrop" aria-hidden="true"></div>
+
+<aside class="drawer" id="drawer" aria-label="Navigasi halaman">
+  <div class="drawer-head">
+    <div class="drawer-brand">
+      IGNORE
+      GALACTICOS
+      <small>Navigasi Halaman</small>
+    </div>
+    <button class="drawer-close" id="drawerClose" aria-label="Tutup menu">✕</button>
+  </div>
+
+  <ul class="drawer-list">
+    <li><a href="#squad" data-close><span class="dl-num">01</span><span class="dl-text">Perkenalan <small>Siapa itu Ignore Galacticos</small></span></a></li>
+    <li><a href="#players" data-close><span class="dl-num">02</span><span class="dl-text">Player <small>Lima orang di balik layar</small></span></a></li>
+    <li><a href="#roles" data-close><span class="dl-num">03</span><span class="dl-text">Role <small>Pembagian tugas &amp; peran</small></span></a></li>
+    <li><a href="#heroes" data-close><span class="dl-num">04</span><span class="dl-text">Hero Favorit <small>Andalan masing-masing</small></span></a></li>
+    <li><a href="#thanks" data-close><span class="dl-num">05</span><span class="dl-text">Thanks To <small>Allah, keluarga, teman</small></span></a></li>
+    <li><a href="#quote" data-close><span class="dl-num">06</span><span class="dl-text">Quote <small>Perkuat mental, tetap berjuang</small></span></a></li>
+  </ul>
+
+  <div class="drawer-foot">
+    <p>© <b>IGNORE GALACTICOS</b> — Keep The Mental</p>
+  </div>
+</aside>
+
+<!-- ================= INTRO ================= -->
+<section class="intro" id="intro">
+
+  <div class="impact" aria-hidden="true"></div>
+
+  <svg class="sword" viewBox="0 0 120 560" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <defs>
+      <linearGradient id="bladeG" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0"    stop-color="#77879D"/>
+        <stop offset="0.28" stop-color="#E4ECF5"/>
+        <stop offset="0.50" stop-color="#FFFFFF"/>
+        <stop offset="0.72" stop-color="#BFCDDD"/>
+        <stop offset="1"    stop-color="#68788D"/>
+      </linearGradient>
+      <linearGradient id="gripG" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0"    stop-color="#5E3A1C"/>
+        <stop offset="0.45" stop-color="#A9713E"/>
+        <stop offset="1"    stop-color="#4E3017"/>
+      </linearGradient>
+    </defs>
+    <circle cx="60" cy="30" r="26" fill="#FFD93D" stroke="#111" stroke-width="7"/>
+    <circle cx="60" cy="30" r="9" fill="#111"/>
+    <rect x="43" y="52" width="34" height="86" rx="7" fill="url(#gripG)" stroke="#111" stroke-width="7"/>
+    <line x1="44" y1="71"  x2="76" y2="71"  stroke="#111" stroke-width="4" opacity=".5"/>
+    <line x1="44" y1="89"  x2="76" y2="89"  stroke="#111" stroke-width="4" opacity=".5"/>
+    <line x1="44" y1="107" x2="76" y2="107" stroke="#111" stroke-width="4" opacity=".5"/>
+    <line x1="44" y1="125" x2="76" y2="125" stroke="#111" stroke-width="4" opacity=".5"/>
+    <rect x="4" y="136" width="112" height="28" rx="9" fill="#FFD93D" stroke="#111" stroke-width="7"/>
+    <circle cx="19"  cy="150" r="5" fill="#111"/>
+    <circle cx="101" cy="150" r="5" fill="#111"/>
+    <path d="M42 164 H78 V492 L60 545 L42 492 Z"
+          fill="url(#bladeG)" stroke="#111" stroke-width="7" stroke-linejoin="round"/>
+    <path d="M60 176 V498" stroke="#111" stroke-width="3" opacity=".2"/>
+  </svg>
+
+  <div class="intro-content">
+    <h1 class="squad-title">
+      <span class="t-sm">IGNORE</span>
+      <span class="t-lg">GALACTICOS</span>
+    </h1>
+    <p class="squad-sub">MLBB Squad · 5 Player · Satu Tujuan</p>
+  </div>
+
+  <div class="scroll-hint">SCROLL ↓</div>
+</section>
+
+<!-- ================= MARQUEE ================= -->
+<div class="marquee" aria-hidden="true">
+  <div class="marquee-track">
+    <span>IGNORE GALACTICOS ✦ NO SURRENDER ✦ PUSH RANK ✦ KEEP THE MENTAL ✦&nbsp;</span>
+    <span>IGNORE GALACTICOS ✦ NO SURRENDER ✦ PUSH RANK ✦ KEEP THE MENTAL ✦&nbsp;</span>
+  </div>
+</div>
+
+<!-- ================= 01 · SQUAD ================= -->
+<section class="sec" id="squad">
+  <header class="sec-head reveal">
+    <span class="eyebrow"><i></i>01 / Perkenalan</span>
+    <h2>Siapa Itu<br><mark>IGNORE GALACTICOS?</mark></h2>
+    <p>
+      Kami bukan squad yang lahir dari turnamen besar. Kami lahir dari mabar malam-malam,
+      dari kekalahan yang bikin kesal, dan dari kebiasaan buat balik lagi walaupun sudah kalah tiga kali berturut-turut.
+    </p>
+  </header>
+  <div class="squad-grid">
+    <div class="manifesto reveal">
+      <p>
+        <strong>IGNORE GALACTICOS</strong> adalah squad Mobile Legends yang diisi oleh
+        <strong>lima orang</strong> dengan lima peran yang saling melengkapi. Tidak ada yang paling
+        jago di sini — yang ada cuma pembagian tugas yang jelas dan satu aturan yang tidak pernah dilanggar:
+        <strong>jangan tinggalin teman di tengah war.</strong>
+      </p>
+      <p>
+        Kami percaya menang itu bukan soal siapa yang paling sering MVP, tapi soal siapa yang masih mau
+        komunikasi saat keadaan sudah kacau. Rank boleh turun, mental jangan.
+      </p>
+      <p>
+        Nama <strong>"IGNORE"</strong> bukan berarti kami mengabaikan segalanya. Justru sebaliknya —
+        kami mengabaikan omongan yang bikin runtuh, dan fokus pada satu hal: <strong>main sebagai tim.</strong>
+      </p>
+    </div>
+    <div class="stat-stack">
+      <div class="stat reveal"><b>05</b><span>Anggota Aktif</span></div>
+      <div class="stat reveal"><b>01</b><span>Tujuan Yang Sama</span></div>
+      <div class="stat reveal"><b>∞</b><span>Stok Mental</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 02 · PLAYERS ================= -->
+<section class="sec" id="players">
+  <header class="sec-head reveal">
+    <span class="eyebrow"><i></i>02 / Roster</span>
+    <h2>Lima Orang,<br><mark>Lima Nama</mark></h2>
+    <p>Kenalin orang-orang di balik layar. Nama boleh beda-beda, tapi semuanya punya satu kebiasaan yang sama: susah move on dari ranked.</p>
+  </header>
+  <div class="players-grid" id="playersGrid"></div>
+</section>
+
+<!-- ================= 03 · ROLES ================= -->
+<section class="sec" id="roles">
+  <header class="sec-head reveal">
+    <span class="eyebrow"><i></i>03 / Role</span>
+    <h2>Pembagian<br><mark>Tugas &amp; Peran</mark></h2>
+    <p>Setiap role punya tanggung jawab yang berbeda. Kalau satu saja lupa tugasnya, ritme tim langsung berantakan.</p>
+  </header>
+  <div class="roles-grid" id="rolesGrid"></div>
+</section>
+
+<!-- ================= 04 · HEROES ================= -->
+<section class="sec" id="heroes">
+  <header class="sec-head reveal">
+    <span class="eyebrow"><i></i>04 / Hero Favorit</span>
+    <h2>Hero Andalan<br><mark>Masing-Masing</mark></h2>
+    <p>Hero yang paling sering dipakai dan paling nyaman di tangan. Kalau kena ban semua, ya... terpaksa kreatif.</p>
+  </header>
+  <div class="heroes-grid" id="heroesGrid"></div>
+</section>
+
+<!-- ================= MARQUEE 2 ================= -->
+<div class="marquee" aria-hidden="true">
+  <div class="marquee-track">
+    <span>THANKS TO ALLAH ✦ THANKS TO FAMILY ✦ THANKS TO FRIENDS ✦&nbsp;</span>
+    <span>THANKS TO ALLAH ✦ THANKS TO FAMILY ✦ THANKS TO FRIENDS ✦&nbsp;</span>
+  </div>
+</div>
+
+<!-- ================= 05 · THANKS ================= -->
+<section class="sec" id="thanks">
+  <header class="sec-head reveal">
+    <span class="eyebrow"><i></i>05 / Terima Kasih</span>
+    <h2>Untuk Semua<br><mark>Yang Layak Disebut</mark></h2>
+    <p>Squad ini tidak berdiri sendiri. Ada banyak pihak yang membuat perjalanan ini tetap berjalan sampai sekarang.</p>
+  </header>
+  <div class="thanks-grid">
+    <article class="thanks-card reveal">
+      <span class="tc-num">01</span>
+      <h3>Allah SWT</h3>
+      <p>Terima kasih atas setiap rezeki, kesehatan, dan kesempatan yang masih diberikan sampai hari ini. Tanpa izin-Nya, squad ini tidak akan pernah ada dan tidak akan bertahan selama ini.</p>
+    </article>
+    <article class="thanks-card reveal">
+      <span class="tc-num">02</span>
+      <h3>Keluarga</h3>
+      <p>Untuk orang tua dan keluarga di rumah yang selalu mendukung, mendoakan, dan tetap sabar walaupun kami sering main sampai larut malam. Terima kasih sudah jadi alasan untuk tetap pulang.</p>
+    </article>
+    <article class="thanks-card reveal">
+      <span class="tc-num">03</span>
+      <h3>Teman &amp; Sahabat</h3>
+      <p>Untuk semua yang pernah mabar, yang pernah jadi rival, dan yang tetap ada saat rank turun. Terima kasih sudah jadi bagian dari perjalanan ini — kalian yang bikin game ini terasa ramai.</p>
+    </article>
+  </div>
+</section>
+
+<!-- ================= 06 · QUOTE ================= -->
+<section class="quote-sec" id="quote">
+  <div class="quote-inner">
+    <p class="quote-mark">"</p>
+    <blockquote>
+      Tetap <em>berjuang</em>, perkuat <em>mental</em>.<br>
+      Kalah hari ini bukan akhir —<br>
+      yang penting jangan berhenti <em>naik</em>.
+    </blockquote>
+    <span class="quote-by">— IGNORE GALACTICOS</span>
+  </div>
+</section>
+
+<footer class="footer">
+  <p>© <span id="year"></span> <b>IGNORE GALACTICOS</b> — MLBB Squad</p>
+  <p><b>Keep the mental</b></p>
+</footer>
+
+<script>
+/* ============================================================
+   🖼️  LOGO SQUAD — TINGGAL GANTI LINK PNG DI BAWAH INI
+   ------------------------------------------------------------
+   Contoh:
+     const LOGO_URL = "logo.png";
+     const LOGO_URL = "https://i.imgur.com/abcd1234.png";
+   Kalau dikosongkan (""), akan muncul fallback "IG" otomatis.
+   ============================================================ */
+const LOGO_URL = "https://cdn.phototourl.com/member/2026-10-01-c76352df-7c3d-47d8-808b-c76716b24181.png";   // <-- TARUH LINK PNG LOGO SQUAD DI SINI
+
+
+/* ============================================================
+   DATA SQUAD
+   ============================================================ */
+const PLAYERS = [
+  {
+    no: "01", ign: "Slayer", name: "Samudera", role: "Jungler", color: "#FFD93D",
+    roleDesc: "Peran penting dalam pengambilan objektif tim. Tugasnya rotasi dan merusuh, finishing saat teamfight, dan jadi peran utama di late game ataupun objektif. Kalau jungler tumbang, menang jadi jauh lebih susah.",
+    interest: "Suka grinding rank tengah malam, dengerin breakbeat.",
+    heroes: [
+      { name: "Fredrin", note: "menahan damage serangan",  img: "" },
+      { name: "Fanny",  note: "Sang ahli executor",   img: "" },
+      { name: "Yi-sun-sin", note: "Petani lincah", img: "" }
+    ]
+  },
+  {
+    no: "02", ign: "Archmage", name: "Abi", role: "Mid Lane", color: "#5BC8F5",
+    roleDesc: "Pengendali tempo permainan. Rotasi cepat untuk bantu lane lain, buka vision, dan jadi sumber burst magic. Mid harus paling peka membaca map dan paling cepat ambil keputusan.",
+    interest: "Kolektor skin mage, hobi combo satu-shot, dan paling sering ngasih call di voice chat.",
+    heroes: [
+      { name: "zhuxin", note: "Fleksibel & aman", img: "" },
+      { name: "eudora",    note: "Peneror handal", img: "" },
+      { name: "valir",    note: "Burst + escape",   img: "" }
+    ]
+  },
+  {
+    no: "03", ign: "Deadyve", name: "tyoo", role: "gold lane", color: "#FF5C8A",
+    roleDesc: "damage terpenting. Sebagai jaminan untuk late game, dan bikin lane lawan ketar-ketir. Salah ambil langkah dikit langsung kalah laning.",
+    interest: "Suka hero kuat, dan hobi adu damage di menit awal.",
+    heroes: [
+      { name: "Granger", note: "Burst damage", img: "" },
+      { name: "Obsidia", note: "Mekanik tinggi",   img: "" },
+      { name: "Brody", note: "Critical damage",   img: "" }
+    ]
+  },
+  {
+    no: "04", ign: "TITAN", name: "Putra (ct)", role: "EXP Lane", color: "#B4E33D",
+    roleDesc: "Tembok depan tim. Menahan tekanan di lane sendiri, jadi frontline saat war, dan membuka jalan buat damage dealer. Harus sabar, kuat, dan tidak gampang tilt.",
+    interest: "Suka hero tanky, hobi split push diam-diam, dan paling tenang kalau tim sedang panik.",
+    heroes: [
+      { name: "Terizla", note: "Sustain tinggi",  img: "" },
+      { name: "Sora",   note: "Pick-off kuat",   img: "" },
+      { name: "Alice",    note: "Tank jadi carry", img: "" }
+    ]
+  },
+  {
+    no: "05", ign: "Guardian", name: "Raka", role: "Roamer", color: "#A78BFA",
+    roleDesc: "Mata dan nyawa tim. Buka vision, atur rotasi, lindungi core, dan jadi yang pertama masuk kalau war dimulai. Posisi Roamer menentukan arah seluruh permainan.",
+    interest: "Suka bikin play dadakan, hobi nyari pick-off, dan paling sering jadi korban buat nyelametin tim.",
+    heroes: [
+      { name: "gloo",   note: "Anti dash lawan",    img: "" },
+      { name: "Carmila", note: "Rotasi super cepat", img: "" },
+      { name: "Belerick",     note: "Pick-off mematikan", img: "" }
+    ]
+  }
+];
+
+const initials = (str) =>
+  str.replace(/[^A-Za-z0-9]/g, "").slice(0, 2).toUpperCase() || "??";
+
+/* ============================================================
+   RENDER LOGO
+   ============================================================ */
+const squadLogo    = document.getElementById("squadLogo");
+const squadLogoImg = document.getElementById("squadLogoImg");
+
+if (LOGO_URL && LOGO_URL.trim() !== "") {
+  squadLogoImg.src = LOGO_URL;
+  squadLogoImg.addEventListener("load", () => {
+    squadLogo.classList.remove("no-img");
+  });
+  squadLogoImg.addEventListener("error", () => {
+    squadLogo.classList.add("no-img");   // fallback "IG"
+  });
+} else {
+  squadLogo.classList.add("no-img");     // tampil "IG"
+}
+
+/* ============================================================
+   RENDER PLAYERS / ROLES / HEROES
+   ============================================================ */
+document.getElementById("playersGrid").innerHTML = PLAYERS.map(p => `
+  <article class="player-card reveal" style="border-top:10px solid ${p.color}">
+    <span class="pc-num">${p.no}</span>
+    <h3 class="pc-ign">${p.ign}</h3>
+    <p class="pc-name">${p.name}</p>
+    <span class="pc-role">${p.role}</span>
+  </article>
+`).join("");
+
+document.getElementById("rolesGrid").innerHTML = PLAYERS.map(p => `
+  <article class="role-card reveal">
+    <div class="rc-left" style="background:${p.color}">
+      <span class="rc-role">${p.role}</span>
+      <span class="rc-owner">PEMAIN &nbsp;·&nbsp; <b>${p.ign}</b></span>
+    </div>
+    <div class="rc-right">
+      <p class="rc-desc">${p.roleDesc}</p>
+      <div class="rc-interest">
+        <span class="rc-label">Ketertarikan</span>
+        <p>${p.interest}</p>
+      </div>
+    </div>
+  </article>
+`).join("");
+
+document.getElementById("heroesGrid").innerHTML = PLAYERS.map(p => `
+  <article class="hero-block reveal">
+    <header class="hb-head" style="background:${p.color}">
+      <span class="hb-no">${p.no}</span>
+      <div>
+        <h3>${p.ign}</h3>
+        <p>${p.role}</p>
+      </div>
+    </header>
+    <div class="hb-list">
+      ${p.heroes.map(h => `
+        <div class="hero-card">
+          <div class="hero-img">
+            <span class="hero-initial">${initials(h.name)}</span>
+            ${h.img ? `<img src="${h.img}" alt="${h.name}" loading="lazy" onerror="this.remove()">` : ""}
+          </div>
+          <div class="hero-meta">
+            <strong>${h.name}</strong>
+            <span>${h.note}</span>
+          </div>
+        </div>
+      `).join("")}
+    </div>
+  </article>
+`).join("");
+
+/* ============================================================
+   DRAWER / MENU SAMPING
+   ============================================================ */
+const menuBtn    = document.getElementById("menuBtn");
+const menuTag    = document.getElementById("menuTag");
+const drawer     = document.getElementById("drawer");
+const drawerBack = document.getElementById("drawerBackdrop");
+const drawerClose= document.getElementById("drawerClose");
+
+/* hapus class animasi intro supaya tidak konflik dengan toggle */
+setTimeout(() => {
+  menuBtn.classList.remove("intro-anim");
+  menuTag.classList.remove("intro-anim");
+  squadLogo.classList.remove("intro-anim");
+}, 2200);
+
+function openDrawer(){
+  drawer.classList.add("open");
+  drawerBack.classList.add("show");
+  menuBtn.classList.add("hidden");
+  menuTag.classList.add("hidden");
+  squadLogo.classList.add("hidden");
+  menuBtn.setAttribute("aria-expanded","true");
+  document.body.classList.add("locked");
+}
+function closeDrawer(){
+  drawer.classList.remove("open");
+  drawerBack.classList.remove("show");
+  menuBtn.classList.remove("hidden");
+  menuTag.classList.remove("hidden");
+  squadLogo.classList.remove("hidden");
+  menuBtn.setAttribute("aria-expanded","false");
+  document.body.classList.remove("locked");
+}
+function toggleDrawer(){
+  drawer.classList.contains("open") ? closeDrawer() : openDrawer();
+}
+
+menuBtn.addEventListener("click", toggleDrawer);
+drawerBack.addEventListener("click", closeDrawer);
+drawerClose.addEventListener("click", closeDrawer);
+
+document.querySelectorAll("[data-close]").forEach(a => {
+  a.addEventListener("click", closeDrawer);
+});
+
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape" && drawer.classList.contains("open")) closeDrawer();
+});
+
+/* ============================================================
+   REVEAL ON SCROLL
+   ============================================================ */
+const io = new IntersectionObserver((entries) => {
+  entries.forEach((entry, i) => {
+    if (entry.isIntersecting) {
+      const el = entry.target;
+      const delay = Math.min(i * 60, 240);
+      setTimeout(() => el.classList.add("in"), delay);
+      io.unobserve(el);
+    }
+  });
+}, { threshold: 0.1, rootMargin: "0px 0px -70px 0px" });
+
+document.querySelectorAll(".reveal").forEach(el => io.observe(el));
+
+document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+
+</body>
+</html>
